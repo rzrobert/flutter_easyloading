@@ -1,3 +1,6 @@
+* update for flutter3.0
+## [3.0.3] - 2022.05.19
+
 ## [3.0.3] - 2021.08.31
 
 * fixed [#126](https://github.com/nslog11/flutter_easyloading/issues/126)

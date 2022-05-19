@@ -32,13 +32,21 @@ class EasyLoadingOverlayEntry extends OverlayEntry {
 
   @override
   void markNeedsBuild() {
-    if (SchedulerBinding.instance?.schedulerPhase ==
+    if (_ambiguate(SchedulerBinding.instance)?.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance?.addPostFrameCallback((_) {
+      _ambiguate(SchedulerBinding.instance)?.addPostFrameCallback((_) {
         super.markNeedsBuild();
       });
     } else {
       super.markNeedsBuild();
     }
   }
+
+  /// This allows a value of type T or T?
+  /// to be treated as a value of type T?.
+  ///
+  /// We use this so that APIs that have become
+  /// non-nullable can still be used with `!` and `?`
+  /// to support older versions of the API as well.
+  T? _ambiguate<T>(T? value) => value;
 }

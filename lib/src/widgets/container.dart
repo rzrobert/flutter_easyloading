@@ -61,7 +61,7 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
   late bool _dismissOnTap, _ignoring;
 
   bool get isPersistentCallbacks =>
-      SchedulerBinding.instance?.schedulerPhase ==
+      _ambiguate(SchedulerBinding.instance)?.schedulerPhase ==
       SchedulerPhase.persistentCallbacks;
 
   @override
@@ -98,8 +98,9 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
   Future<void> show(bool animation) {
     if (isPersistentCallbacks) {
       Completer<void> completer = Completer<void>();
-      SchedulerBinding.instance?.addPostFrameCallback((_) => completer
-          .complete(_animationController.forward(from: animation ? 0 : 1)));
+      _ambiguate(SchedulerBinding.instance)?.addPostFrameCallback((_) =>
+          completer
+              .complete(_animationController.forward(from: animation ? 0 : 1)));
       return completer.future;
     } else {
       return _animationController.forward(from: animation ? 0 : 1);
@@ -109,8 +110,9 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
   Future<void> dismiss(bool animation) {
     if (isPersistentCallbacks) {
       Completer<void> completer = Completer<void>();
-      SchedulerBinding.instance?.addPostFrameCallback((_) => completer
-          .complete(_animationController.reverse(from: animation ? 1 : 0)));
+      _ambiguate(SchedulerBinding.instance)?.addPostFrameCallback((_) =>
+          completer
+              .complete(_animationController.reverse(from: animation ? 1 : 0)));
       return completer.future;
     } else {
       return _animationController.reverse(from: animation ? 1 : 0);
@@ -127,6 +129,14 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
   void _onTap() async {
     if (_dismissOnTap) await EasyLoading.dismiss();
   }
+
+  /// This allows a value of type T or T?
+  /// to be treated as a value of type T?.
+  ///
+  /// We use this so that APIs that have become
+  /// non-nullable can still be used with `!` and `?`
+  /// to support older versions of the API as well.
+  T? _ambiguate<T>(T? value) => value;
 
   @override
   Widget build(BuildContext context) {
